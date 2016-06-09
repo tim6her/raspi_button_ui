@@ -25,11 +25,11 @@ control_led.state = True
 while True:
     print 'Shutdown?'
     if toggle_but and vol_down_but:
-        subprocess.call('sudo halt')
+        subprocess.call(['sudo', ' halt'])
 
     print 'Reboot?'
     if toggle_but and vol_up_but:
-        subprocess.call('sudo reboot')
+        subprocess.call(['sudo', 'reboot'])
 
     print 'Toggle?'
     if toggle_but:
