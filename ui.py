@@ -4,6 +4,7 @@
 import lmsio
 import gpioio
 import time
+import subprocess
 
 # Set name of server and player here
 SERVER = 'salonmaster'
@@ -22,6 +23,14 @@ phono_but = gpioio.Button(led=control_led)
 control_led.state = True
 
 while True:
+    print 'Shutdown?'
+    if toggle_but and vol_down_but:
+        subprocess.call('sudo halt')
+
+    print 'Reboot?'
+    if toggle_but and vol_up_but:
+        subprocess.call('sudo reboot')
+
     print 'Toggle?'
     if toggle_but:
         player.toggle()
