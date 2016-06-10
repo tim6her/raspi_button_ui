@@ -32,6 +32,7 @@ class Button(Pin):
         if self.led != None and state:
             self.led.blink()
         self._state = state
+        time.sleep(.2)
         return self._state
 
 class LED(Pin):

@@ -2,6 +2,7 @@
 # -*- coding: utf-8
 
 import lmsio
+import RPi.GPIO as GPIO
 import gpioio
 import time
 import subprocess
@@ -12,42 +13,39 @@ PLAYER = 'salonmaster'
 
 player = lmsio.connect_to_player_at_server(PLAYER, SERVER)
 
-control_led = gpioio.LED()
-phono_led = gpioio.LED()
+try:
+    GPIO.setmode(GPIO.BOARD)
 
-toggle_but = gpioio.Button(led=control_led)
-vol_up_but = gpioio.Button(led=control_led)
-vol_down_but = gpioio.Button(led=control_led)
-phono_but = gpioio.Button(led=control_led)
+    control_led = gpioio.LED(24)
+    phono_led = gpioio.LED(26)
 
-control_led.state = True
+    toggle_but = gpioio.Button(19, led=control_led)
+    vol_up_but = gpioio.Button(21, led=control_led)
+    vol_down_but = gpioio.Button(22, led=control_led)
+    phono_but = gpioio.Button(23, led=control_led)
 
-while True:
-    print 'Shutdown?'
-    if toggle_but and vol_down_but:
-        subprocess.call(['sudo', ' halt'])
+    control_led.state = True
 
-    print 'Reboot?'
-    if toggle_but and vol_up_but:
-        subprocess.call(['sudo', 'reboot'])
+    while True:
+        if toggle_but and vol_down_but:
+            subprocess.call(['sudo', ' halt'])
 
-    print 'Toggle?'
-    if toggle_but:
-        player.toggle()
+        if toggle_but and vol_up_but:
+            subprocess.call(['sudo', 'reboot'])
 
-    print 'Vol up?'
-    if vol_up_but:
-        player.volume_up()
+        if toggle_but:
+            player.toggle()
 
-    print 'Vol down?'
-    if vol_down_but:
-        player.volume_down()
+        if vol_up_but:
+            player.volume_up()
 
-    print 'Phono?'
-    if phono_but:
-        phono_led.state = not phono_led.state
-        pass
+        if vol_down_but:
+            player.volume_down()
 
-    print 'Control: ' + str(control_led.state)
-    print 'Phono: ' + str(phono_led.state)
-    time.sleep(.5)
+        if phono_but:
+            phono_led.state = not phono_led.state
+            pass
+
+        time.sleep(.5)
+finally:
+    GPIO.cleanup()
