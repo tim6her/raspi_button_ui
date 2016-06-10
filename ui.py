@@ -16,13 +16,13 @@ player = lmsio.connect_to_player_at_server(PLAYER, SERVER)
 try:
     GPIO.setmode(GPIO.BOARD)
 
-    control_led = gpioio.LED(24)
-    phono_led = gpioio.LED(26)
+    control_led = gpioio.LED(26)
+    phono_led = gpioio.LED(24)
 
     toggle_but = gpioio.Button(19, led=control_led)
-    vol_up_but = gpioio.Button(21, led=control_led)
+    vol_up_but = gpioio.Button(23, led=control_led)
     vol_down_but = gpioio.Button(22, led=control_led)
-    phono_but = gpioio.Button(23, led=control_led)
+    phono_but = gpioio.Button(21, led=control_led)
 
     control_led.state = True
 

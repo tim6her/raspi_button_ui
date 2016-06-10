@@ -69,6 +69,7 @@ def main():
     while True:
         for i, but in enumerate(buts):
             if but:
+                print i
                 leds[0].state = i % 2
                 leds[1].state = (i // 2) % 2
 
