@@ -5,13 +5,27 @@ import lmsio
 import RPi.GPIO as GPIO
 import gpioio
 import time
+import threading
 import subprocess
+import Queue
+
+def queue_connect(queue, *args):
+    #time.sleep(15)
+    player = lmsio.connect_to_player_at_server(*args)
+    queue.put(player)
 
 # Set name of server and player here
 SERVER = 'salonmaster'
 PLAYER = 'salonmaster'
 
-player = lmsio.connect_to_player_at_server(PLAYER, SERVER)
+queue = Queue.Queue()
+thread_ = threading.Thread(
+                target=queue_connect,
+                name="Thread1",
+                args=[queue, PLAYER, SERVER],
+                )
+thread_.start()
+player = None
 
 try:
     GPIO.setmode(GPIO.BOARD)
@@ -27,19 +41,33 @@ try:
     control_led.state = True
 
     while True:
+	if player == None:
+            try:
+                player = queue.get_nowait()
+            except Queue.Empty:
+                player = None
+                phono_led.blink()
+                if not thread_.is_alive():
+                    thread_ = threading.Thread(
+                                target=queue_connect,
+                                name="Thread1",
+                                args=[queue, PLAYER, SERVER],
+                                )
+                    thread_.start()
+
         if toggle_but and vol_down_but:
             subprocess.call(['sudo', ' halt'])
 
         if toggle_but and vol_up_but:
             subprocess.call(['sudo', 'reboot'])
 
-        if toggle_but:
+        if toggle_but and player != None:
             player.toggle()
 
-        if vol_up_but:
+        if vol_up_but and player != None:
             player.volume_up()
 
-        if vol_down_but:
+        if vol_down_but and player != None:
             player.volume_down()
 
         if phono_but:
