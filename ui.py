@@ -26,6 +26,7 @@ thread_ = threading.Thread(
                 )
 thread_.start()
 player = None
+p = None
 
 try:
     GPIO.setmode(GPIO.BOARD)
@@ -71,8 +72,8 @@ try:
             player.volume_down()
 
         if phono_but:
-            phono_led.state = not phono_led.state
-            pass
+            p = lmsio.phono(p)
+            phono_led.state = p != None and p.poll != None
 
         time.sleep(.5)
 finally:

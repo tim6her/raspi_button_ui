@@ -4,6 +4,7 @@
 from pylms.server import Server
 import socket
 import time
+import subprocess
 
 def connect_to_player_at_server(playername, hostname):
     server = Server(hostname=hostname)
@@ -20,3 +21,10 @@ def connect_to_player_at_server(playername, hostname):
             return players[0]
         except socket.gaierror:
             time.sleep(5)
+
+def phono(p=None):
+    if p == None:
+        p = subprocess.Popen(['sudo', 'darkice'])
+        return p
+    else:
+        p.kill()
