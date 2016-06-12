@@ -7,11 +7,15 @@ import gpioio
 import time
 import threading
 import subprocess
+import socket
 import Queue
 
 def queue_connect(queue, *args):
-    #time.sleep(15)
-    player = lmsio.connect_to_player_at_server(*args)
+    while True:
+        try:
+            player = lmsio.connect_to_player_at_server(*args)
+        except socket.gaierror:
+            time.sleep(5)
     queue.put(player)
 
 # Set name of server and player here
@@ -73,7 +77,8 @@ try:
 
         if phono_but:
             p = lmsio.phono(p)
-            phono_led.state = p != None and p.poll != None
+
+        phono_led.state = p != None and p.poll != None
 
         time.sleep(.5)
 finally:
