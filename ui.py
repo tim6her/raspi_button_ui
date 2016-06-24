@@ -14,8 +14,11 @@ def queue_connect(queue, *args):
     while True:
         try:
             player = lmsio.connect_to_player_at_server(*args)
-        except socket.gaierror:
+        except EOFError:
+            print 'Could not connect'
             time.sleep(5)
+        else:
+            break
     queue.put(player)
 
 # Set name of server and player here
@@ -53,6 +56,7 @@ try:
                 player = None
                 phono_led.blink()
                 if not thread_.is_alive():
+                    print 'Thread connecting to LMS is dead'
                     thread_ = threading.Thread(
                                 target=queue_connect,
                                 name="Thread1",

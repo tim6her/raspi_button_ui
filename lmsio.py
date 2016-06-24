@@ -6,9 +6,9 @@ Server"""
 __author__ = 'Tim B. Herbstrith'
 
 from pylms.server import Server
-import socket
 import time
 import re
+import subprocess
 import os
 
 def connect_to_player_at_server(playername, hostname):
@@ -24,15 +24,13 @@ def connect_to_player_at_server(playername, hostname):
     """
     server = Server(hostname=hostname)
 
-    while True:
-        server.connect()
-        players = [ply for ply in server.get_players() if ply.name ==
-                    playername]
-        if len(players) < 1:
-            raise socket.gaierror(('No player named %s connected to '
+    server.connect()
+    players = [ply for ply in server.get_players() if ply.name ==
+                playername]
+    if len(players) < 1:
+        raise RuntimeError(('No player named %s connected to '
                         'server named %s') % (playername, hostname))
-
-        return players[0]
+    return players[0]
 
 def phono(p=None):
     """Runs or stops *darkice*
