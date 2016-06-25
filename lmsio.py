@@ -58,12 +58,15 @@ def phono(p=None):
             return
         path = os.path.split(os.path.realpath(__file__))[0]
         cfg_in_fn = os.path.join(path, 'darkice.cfg')
-	cfg_out_fn = os.path.join(path, '.cfg')
+	pwd_fn = os.path.join(path, 'pwd.txt')
+        cfg_out_fn = os.path.join(path, '.cfg')
 
         with open(cfg_in_fn, 'r') as cfg_in:
             cfg = cfg_in.read()
+        with open(pwd_fn, 'r') as pwd_file:
+            pwd = pwd_file.read()
         with open(cfg_out_fn, 'w') as cfg_out:
-            cfg_out.write(cfg.format(dev=device, sub=subdev))
+            cfg_out.write(cfg.format(dev=device, sub=subdev, pwd=pwd))
 
         p = subprocess.Popen(['sudo', 'darkice', '-c', cfg_out_fn])
         return p
