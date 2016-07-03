@@ -1,5 +1,26 @@
 #!/usr/bin/python
 # -*- coding: utf-8
+"""A simple UI for a internet radio based on Squeezbox 
+using physical buttons and LEDs in the following curcuit.
+
+  #19     #21     #22      #23     #24     #26
+  GPIO10  GPIO09  GPIO25   GPIO11  GPIO08  GPIO07
+  toggle  phono   vol down vol up  status  phono
+    |       |       |        |       |       |
+    |       |       |        |      +-+     +-+
+    |       |       |        |      | |     | |
+    |       |       |        |      +-+     +-+
+    |       |       |        |       |       |
+    /       /       /        /      ---     ---
+ +-/     +-/     +-/      +-/       \ / =>  \ / =>
+    |       |       |        |      ---     ---
+    |       |       |        |       |       |
+----+-------+-------+--------+-------+---+---+----
+                                         |
+                                        --- #25 GND
+                                         - 
+"""
+
 
 import lmsio
 import RPi.GPIO as GPIO
