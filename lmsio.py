@@ -86,9 +86,9 @@ def _start_phono(player):
     # Save current track and start playing phono
     _was_playing = player.get_track_path()
     
-    flds = ['server', 'port', 'mount']
+    flds = ['server', 'port', 'mountPoint']
     pats = [fld + r'\s*=\s(\w+)' for fld in flds]
-    parts = [re.search(p).groups(1)[0] for p in pats]
+    parts = [re.search(pat, cfg).groups(1)[0] for pat in pats]
     url = 'http://{0}:{1}/{2}'.format(*parts)
     player.playlist_play(url)
     player.set_volume(2 * player.get_volume())
