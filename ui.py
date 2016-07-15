@@ -101,7 +101,7 @@ try:
             player.volume_down()
 
         if phono_but:
-            p = lmsio.phono(p)
+            p = lmsio.phono(player, p)
 
         phono_led.state = p != None and p.poll != None
 

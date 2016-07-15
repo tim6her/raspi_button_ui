@@ -11,6 +11,8 @@ import re
 import subprocess
 import os
 
+_was_playing = ''
+
 def connect_to_player_at_server(playername, hostname):
     """Connects to a Squeezbox player connected to a server by
     their name.
@@ -32,7 +34,7 @@ def connect_to_player_at_server(playername, hostname):
                         'server named %s') % (playername, hostname))
     return players[0]
 
-def phono(p=None):
+def phono(player, p=None):
     """Runs or stops *darkice*
 
     If `p` is `None` a new subprocess running *darkice* is
@@ -46,29 +48,49 @@ def phono(p=None):
             `None` if the subprocess has been killed.
     """
     if p == None:
-        arecord = subprocess.Popen(['arecord', '-l'], stdout=subprocess.PIPE)
-        hw = arecord.communicate()[0]
-	print hw
-        try:
-            pat_dev = r'card (\d+):'
-            device = re.search(pat_dev, hw).groups(1)[0]
-            pat_sub = r'Subdevice #(\d+):'
-            subdev = re.search(pat_sub, hw).groups(1)[0]
-        except AttributeError:
-            return
-        path = os.path.split(os.path.realpath(__file__))[0]
-        cfg_in_fn = os.path.join(path, 'darkice.cfg')
-	pwd_fn = os.path.join(path, 'pwd.txt')
-        cfg_out_fn = os.path.join(path, '.cfg')
-
-        with open(cfg_in_fn, 'r') as cfg_in:
-            cfg = cfg_in.read()
-        with open(pwd_fn, 'r') as pwd_file:
-            pwd = pwd_file.read()
-        with open(cfg_out_fn, 'w') as cfg_out:
-            cfg_out.write(cfg.format(dev=device, sub=subdev, pwd=pwd))
-
-        p = subprocess.Popen(['sudo', 'darkice', '-c', cfg_out_fn])
-        return p
+        return _start_phono(player)
     else:
+        player.set_volume(player.get_volume() // 2)
+        player.playlist_play(_was_playing)
         p.kill()
+        
+def _start_phono(player):
+    global _was_playing
+    
+    arecord = subprocess.Popen(['arecord', '-l'], stdout=subprocess.PIPE)
+    hw = arecord.communicate()[0]
+    print hw
+    try:
+        pat_dev = r'card (\d+):'
+        device = re.search(pat_dev, hw).groups(1)[0]
+        pat_sub = r'Subdevice #(\d+):'
+        subdev = re.search(pat_sub, hw).groups(1)[0]
+    except AttributeError:
+        return
+    path = os.path.split(os.path.realpath(__file__))[0]
+    cfg_in_fn = os.path.join(path, 'darkice.cfg')
+    pwd_fn = os.path.join(path, 'pwd.txt')
+    cfg_out_fn = os.path.join(path, '.cfg')
+
+    with open(cfg_in_fn, 'r') as cfg_in:
+        cfg = cfg_in.read()
+    with open(pwd_fn, 'r') as pwd_file:
+        pwd = pwd_file.read()
+    
+    cfg = cfg.format(dev=device, sub=subdev, pwd=pwd)
+    with open(cfg_out_fn, 'w') as cfg_out:
+        cfg_out.write(cfg)
+
+    p = subprocess.Popen(['sudo', 'darkice', '-c', cfg_out_fn])
+    
+    # Save current track and start playing phono
+    _was_playing = player.get_track_path()
+    
+    flds = ['server', 'port', 'mount']
+    pats = [fld + r'\s*=\s(\w+)' for fld in flds]
+    parts = [re.search(p).groups(1)[0] for p in pats]
+    url = 'http://{0}:{1}/{2}'.format(*parts)
+    player.playlist_play(url)
+    player.set_volume(2 * player.get_volume())
+    
+    return p
