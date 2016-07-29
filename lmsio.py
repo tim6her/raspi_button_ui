@@ -48,8 +48,12 @@ def phono(player, p=None):
             `None` if the subprocess has been killed.
     """
     if p == None:
+        with open('cartrige.log', 'a') as f:
+            f.write('On: ' + str(time.now()))
         return _start_phono(player)
     else:
+        with open('cartrige.log', 'a') as f:
+            f.write('On: ' + str(time.now()))
         player.set_volume(player.get_volume() // 2)
         player.playlist_play(_was_playing)
         p.kill()
