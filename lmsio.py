@@ -47,13 +47,15 @@ def phono(player, p=None):
         subprocess.Popen / `None`: subprocess running *darkice* or
             `None` if the subprocess has been killed.
     """
+    path = os.path.split(os.path.realpath(__file__))[0]
+    log_fn = os.path.join(path, 'cartridge.log')
     if p == None:
-        with open('cartrige.log', 'a') as f:
+        with open(log_fn, 'a') as f:
             on = 'On: %d\n' % int(time.time()) 
             f.write(on)
         return _start_phono(player)
     else:
-        with open('cartrige.log', 'a') as f:
+        with open(log_fn, 'a') as f:
             off = 'Off: %d\n' % int(time.time()) 
             f.write(off)
         player.set_volume(player.get_volume() // 2)
