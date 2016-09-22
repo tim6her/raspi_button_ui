@@ -49,11 +49,13 @@ def phono(player, p=None):
     """
     if p == None:
         with open('cartrige.log', 'a') as f:
-            f.write('On: ' + str(time.now()))
+            on = 'On: %d\n' % int(time.time()) 
+            f.write(on)
         return _start_phono(player)
     else:
         with open('cartrige.log', 'a') as f:
-            f.write('On: ' + str(time.now()))
+            off = 'Off: %d\n' % int(time.time()) 
+            f.write(off)
         player.set_volume(player.get_volume() // 2)
         player.playlist_play(_was_playing)
         p.kill()
