@@ -60,7 +60,7 @@ def phono(player, p=None):
             f.write(off)
         player.set_volume(player.get_volume() // 2)
         player.playlist_play(_was_playing)
-        p.kill()
+        p.terminate()
         
 def _start_phono(player):
     global _was_playing
