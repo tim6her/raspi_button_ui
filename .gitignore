@@ -2,3 +2,4 @@
 *.log
 .cfg
 pwd.txt
+.DS_Store
