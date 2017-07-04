@@ -99,6 +99,9 @@ def _start_phono(player):
     parts = [re.search(pat, cfg).groups(1)[0] for pat in pats]
     url = 'http://{0}:{1}/{2}'.format(*parts)
     player.playlist_play(url)
+    while not player.get_mode() == 'play':
+        player.play()
+        time.sleep(.1)
     player.set_volume(2 * player.get_volume())
     
     return p

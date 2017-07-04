@@ -70,7 +70,7 @@ try:
     control_led.state = True
 
     while True:
-	if player == None:
+        if player == None:
             try:
                 player = queue.get_nowait()
             except Queue.Empty:
@@ -92,7 +92,12 @@ try:
             subprocess.call(['sudo', 'reboot'])
 
         if toggle_but and player != None:
-            player.toggle()
+            old_mode = player.get_mode()
+            new_mode = old_mode
+            while old_mode == new_mode:
+                player.toggle()
+                new_mode = player.get_mode()
+                time.sleep(.1)
 
         if vol_up_but and player != None:
             player.volume_up()
@@ -105,6 +110,6 @@ try:
 
         phono_led.state = p != None and p.poll != None
 
-        time.sleep(.5)
+        time.sleep(.2)
 finally:
     GPIO.cleanup()
