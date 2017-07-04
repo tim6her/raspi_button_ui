@@ -86,7 +86,7 @@ if __name__ == '__main__':
     
     use = usetime(usage)
     
-    print use / 60. / 60.
+    print '%.2f' % (use / 60. / 60.)
     if use < MAX_USE:
         print 'cartridge okay'
     else:
