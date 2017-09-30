@@ -2,4 +2,5 @@
 *.log
 .cfg
 pwd.txt
+adafruit.txt
 .DS_Store

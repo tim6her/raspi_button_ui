@@ -22,15 +22,16 @@ using physical buttons and LEDs in the following curcuit.
                                          -
 """
 
-
-import lmsio
 import RPi.GPIO as GPIO
-import gpioio
 import time
 import threading
 import subprocess
 import socket
 import Queue
+
+import adafruit
+import gpioio
+import lmsio
 
 def queue_connect(queue, *args):
     while True:
@@ -48,12 +49,18 @@ SERVER = 'salonmaster'
 PLAYER = 'salonmaster'
 
 queue = Queue.Queue()
-thread_ = threading.Thread(
-                target=queue_connect,
-                name="Thread1",
-                args=[queue, PLAYER, SERVER],
-                )
-thread_.start()
+thread_connect = threading.Thread(target=queue_connect,
+                                  name="connect_to_player",
+                                  args=[queue, PLAYER, SERVER],
+                                 )
+thread_connect.start()
+
+# Cartridge thread
+thread_cartridge = threading.Thread(target=adafruit.main,
+                                    name='cartridge'
+                                   )
+thread_cartridge.start()
+
 player = None
 p = None
 
@@ -77,14 +84,14 @@ try:
             except Queue.Empty:
                 player = None
                 phono_led.blink()
-                if not thread_.is_alive():
+                if not thread_connect.is_alive():
                     print 'Thread connecting to LMS is dead'
-                    thread_ = threading.Thread(
+                    thread_connect = threading.Thread(
                                 target=queue_connect,
-                                name="Thread1",
+                                name="connect_to_player",
                                 args=[queue, PLAYER, SERVER],
                                 )
-                    thread_.start()
+                    thread_connect.start()
 
         if toggle_but and vol_down_but:
             subprocess.call(['sudo', ' halt'])
