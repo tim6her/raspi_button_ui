@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8
-"""A simple UI for a internet radio based on Squeezbox 
+
+"""A simple UI for a internet radio based on Squeezbox
 using physical buttons and LEDs in the following curcuit.
 
   #19     #21     #22      #23     #24     #26
@@ -18,7 +19,7 @@ using physical buttons and LEDs in the following curcuit.
 ----+-------+-------+--------+-------+---+---+----
                                          |
                                         --- #25 GND
-                                         - 
+                                         -
 """
 
 
@@ -93,11 +94,12 @@ try:
 
         if toggle_but and player != None:
             old_mode = player.get_mode()
-            new_mode = old_mode
-            while old_mode == new_mode:
+            for i in range(3):
                 player.toggle()
                 new_mode = player.get_mode()
                 time.sleep(.1)
+                if old_mode != new_mode:
+                    break
 
         if vol_up_but and player != None:
             player.volume_up()
