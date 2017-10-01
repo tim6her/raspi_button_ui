@@ -33,33 +33,43 @@ import adafruit
 import gpioio
 import lmsio
 
-def queue_connect(queue, *args):
-    while True:
-        try:
-            player = lmsio.connect_to_player_at_server(*args)
-        except EOFError:
-            print 'Could not connect'
-            time.sleep(5)
-        else:
-            break
-    queue.put(player)
+def thread_connecting_to_player(queue):
+    def queue_connect(queue, *args):
+        while True:
+            try:
+                player = lmsio.connect_to_player_at_server(*args)
+            except EOFError:
+                print 'Could not connect'
+                time.sleep(5)
+            else:
+                break
+        queue.put(player)
+
+    thread_connect = threading.Thread(target=queue_connect,
+                                      name="connect_to_player",
+                                      args=[queue, PLAYER, SERVER],
+                                     )
+    thread_connect.start()
+    return thread_connect
+
+def thread_for_adafruit():
+    thread_cartridge = threading.Thread(target=adafruit.main,
+                                        name='cartridge'
+                                       )
+    thread_cartridge.start()
+    return thread_cartridge
+
 
 # Set name of server and player here
 SERVER = 'salonmaster'
 PLAYER = 'salonmaster'
 
+# Player thread
 queue = Queue.Queue()
-thread_connect = threading.Thread(target=queue_connect,
-                                  name="connect_to_player",
-                                  args=[queue, PLAYER, SERVER],
-                                 )
-thread_connect.start()
+thread_connect = thread_connecting_to_player(queue)
 
 # Cartridge thread
-thread_cartridge = threading.Thread(target=adafruit.main,
-                                    name='cartridge'
-                                   )
-thread_cartridge.start()
+thread_cartridge = thread_for_adafruit()
 
 player = None
 p = None
@@ -86,12 +96,10 @@ try:
                 phono_led.blink()
                 if not thread_connect.is_alive():
                     print 'Thread connecting to LMS is dead'
-                    thread_connect = threading.Thread(
-                                target=queue_connect,
-                                name="connect_to_player",
-                                args=[queue, PLAYER, SERVER],
-                                )
-                    thread_connect.start()
+                    thread_connect = thread_connecting_to_player(queue)
+
+        if not thread_cartridge.is_alive():
+            thread_cartridge = thread_for_adafruit()
 
         if toggle_but and vol_down_but:
             subprocess.call(['sudo', ' halt'])
