@@ -19,6 +19,7 @@ def main():
         pb = pushbullet.Pushbullet(pbf.read().strip('\n'))
 
     old_id = None
+    startup = True
     while True:
         time.sleep(5)
 
@@ -32,7 +33,7 @@ def main():
         if data:
             new_id = data.id
 
-        if old_id != new_id:
+        if old_id != new_id and not startup:
             usage = cartridge.usage_list(log_fn, realtime=True)
             use = cartridge.usetime(usage)
             title = 'CARTRIDE USAGE'
@@ -40,6 +41,7 @@ def main():
             pb.push_note(title, body)
 
         old_id = new_id
+        startup = False
 
 if __name__ == "__main__":
     main()
