@@ -4,7 +4,7 @@ import os
 import time
 
 import Adafruit_IO as aio
-import pushbullet
+import requests
 
 import cartridge
 
@@ -12,11 +12,11 @@ def main():
     path = os.path.split(os.path.realpath(__file__))[0]
     log_fn = os.path.join(path, 'cartridge.log')
     ada_fn = os.path.join(path, 'adafruit.txt')
-    pb_fn = os.path.join(path, 'pushbullet.txt')
+    webhooks_fn = os.path.join(path, 'webhooks.txt')
     with open(ada_fn, 'r') as ada:
         client = aio.Client(ada.read().strip('\n'))
-    with open(pb_fn, 'r') as pbf:
-        pb = pushbullet.Pushbullet(pbf.read().strip('\n'))
+    with open(webhooks_fn, 'r') as wh_file:
+        wh_url = wh_file.read().strip('\n')
 
     old_id = None
     startup = True
@@ -36,9 +36,12 @@ def main():
         if old_id != new_id and not startup:
             usage = cartridge.usage_list(log_fn, realtime=True)
             use = cartridge.usetime(usage)
-            title = 'CARTRIDE USAGE'
-            body = 'Your cartridge operated %.2f hours.' % (use / 60. / 60.)
-            pb.push_note(title, body)
+            ok = cartridge.MAX_USE > use
+            value2 = 'OK' if ok else 'Please change!'
+            data = dict(value1='%.2f' % (use / 60. / 60.),
+                        value2=value2)
+            requests.post(wh_url, data)
+
 
         old_id = new_id
         startup = False
